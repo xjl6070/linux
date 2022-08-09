@@ -37,3 +37,47 @@ Normal 模式下，用户按冒号 :即可进入 Command 模式，此时 vim 会
 3. :wq 用于存盘退出Vi
 4. :q! 用于不存盘退出Vi
 5. :q用于直接退出Vi （未做修改）
+
+## usb权限
+
+#### 1. 串口名
+
+一般如果只连接一个串口设备，则设备名称为ttyUSB0；短时间内拔插串口设备名称可能会改变例如ttyUSB1等；所以需要设置成开机就赋予权限。解决方案：在终端中输入 
+
+```Terminal
+sudo gedit /etc/udev/rules.d/70-ttyusb.rules
+```
+
+这一步操作是修改udev规则，在打开的文件中添加以下字段 将ttyUSB0-9都赋予权限
+
+```Terminal
+KERNEL==“ttyUSB[0-9]*”, MODE=“0666”
+```
+
+#### 2. 串口延时
+
+解决方案如下：查看当前系统的latency_time值，默认是16
+
+```Terminal
+cat /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
+```
+
+使用以下命令可以修改latency_time值到1，修改以后重启串口使用程序即刻生效，但是重启电脑以后会恢复默认值
+
+```Terminal
+sudo chmod 0666 /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
+echo 1 > /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
+```
+
+使其永久生效的方法还是修改udev的规则，同问题1操作
+
+```
+sudo gedit /etc/udev/rules.d/70-ttyusb.rules
+```
+
+加入以下语句 并保存，重启电脑可以使用上面的语句查看是否生效。
+
+```Terminal
+ACTION=="add", SUBSYSTEM=="usb-serial", DRIVER=="ftdi_sio", ATTR{latency_timer}="1"
+```
+
