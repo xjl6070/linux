@@ -81,3 +81,49 @@ sudo gedit /etc/udev/rules.d/70-ttyusb.rules
 ACTION=="add", SUBSYSTEM=="usb-serial", DRIVER=="ftdi_sio", ATTR{latency_timer}="1"
 ```
 
+## 更换内核
+
+查看已安装内核
+
+```Terminal
+sudo dpkg --get-selections |grep linux
+```
+
+下载低版本内核
+
+```Terminal
+sudo apt-get install linux-image-4.15.0-22-generic -y
+sudo apt install linux-headers-4.15.0-22-generic -y
+sudo apt install linux-modules-4.15.0-22-generic -y
+sudo apt-get install linux-modules-extra-4.15.0-22-generic -y
+```
+
+安装完后，需要修改默认内核，用下面的指令打开grub文档查看已安装内核
+
+```
+dpkg --list | grep linux-image
+```
+
+```Terminal
+sudo gedit /etc/default/grub
+```
+
+此时，文档中应该会有 GRUB_DEFAULT=0  这一行，把它改成  GRUB_DEFAULT=‘Ubuntu，Linux 4.15.0-22-generic’  然后保存，执行下面这个指令
+
+```Terminal
+sudo update-grub
+```
+
+卸载内核
+
+```Terminal
+sudo apt-get remove linux-image-4.15.0-112-generic
+sudo apt-get remove linux-headers-4.15.0-112-generic
+sudo apt-get remove linux-modules-4.15.0-112-generic
+sudo apt-get remove linux-modules-extra-4.15.0-112-generic
+sudo apt-get purge linux-image-4.15.0-112-generic
+sudo apt-get purge linux-headers-4.15.0-112-generic
+sudo apt-get purge linux-modules-4.15.0-112-generic
+sudo apt-get purge linux-modules-extra-4.15.0-112-generic
+```
+
